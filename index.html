@@ -8,21 +8,28 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <section class="left">
-      <h2>Left Operand</h2>
-      <input type="number" class="left-operand" />
-    </section>
-    <section class="right">
-      <h2>Right Operand</h2>
-      <input type="number" class="right-operand" />
-    </section>
-    <section class="center">
-      <input type="radio" name="operator" value="+" /> + Addition<br />
-      <input type="radio" name="operator" value="-" /> - Subtraction<br />
-      <input type="radio" name="operator" value="*" /> * Multiplication<br />
-      <input type="radio" name="operator" value="/" /> / Division<br />
-      <input type="radio" name="operator" value="%" /> % Remainder<br />
-    </section>
+    <form action="script.js" method="get">
+      <section class="left">
+        <h2>Left Operand</h2>
+        <input type="number" class="left-operand" />
+      </section>
+      <section class="right">
+        <h2>Right Operand</h2>
+        <input type="number" class="right-operand" />
+      </section>
+      <section class="center">
+        <input type="radio" class="operator" name="operator" value="+" /> +
+        Addition<br />
+        <input type="radio" class="operator" name="operator" value="-" /> -
+        Subtraction<br />
+        <input type="radio" class="operator" name="operator" value="*" /> *
+        Multiplication<br />
+        <input type="radio" class="operator" name="operator" value="/" /> /
+        Division<br />
+        <input type="radio" class="operator" name="operator" value="%" /> %
+        Remainder<br />
+      </section>
+    </form>
     <section class="bottom">
       <button class="btn">Calculate</button>
       <p>Expression:</p>
@@ -30,5 +37,6 @@
       <p>Result:</p>
       <p class="result">??</p>
     </section>
+    <script src="script.js"></script>
   </body>
 </html>
