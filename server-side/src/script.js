@@ -14,8 +14,14 @@ document.querySelector(".btn").addEventListener("click", function () {
   for (let i = 0; i < operator.length; i++)
     if (operator[i].checked) selectedOperator = operator[i].value;
 
-  console.log(
-    `${lOperand.valueAsNumber} ${selectedOperator} ${rOperand.valueAsNumber}`
-  );
-  console.log(lOperand.valueAsNumber, selectedOperator, rOperand.valueAsNumber);
+  const message = ``; //Contains the operation
+  getJsonFile(message);
 });
+
+const getJsonFile = function (message) {
+  fetch(`http://localhost:8080/`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    });
+};

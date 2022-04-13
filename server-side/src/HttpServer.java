@@ -1,8 +1,11 @@
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.*;
+import java.io.*;
 
-public class Main {
+public class HttpServer {
+    private static HttpURLConnection connection;
+
     public static void main(String[] args) {
         ServerSocket serverSocket = null;
         try {
