@@ -65,20 +65,14 @@ class RequestProcessor implements Runnable {
             while(!(line = in.readLine()).isEmpty()){
                 if (line.toLowerCase().contains("calculate")) {
                     System.out.println(line);
-//                    line = line.substring(14,line.length() - 5).trim();
                     line = "http://localhost:8080" + line.substring(4, line.length() - 8).trim();
                     System.out.println("Debug: " + line);
                     Map<String, List<String>> map = splitQuery(new URL(line));
                     for(Map.Entry<String, List<String>> entry : map.entrySet()){
                         operators.addLast(entry.getValue().get(0));
                         System.out.println(entry.getValue().get(0).getClass());
-//                        operators = entry.getValue();
-//                        System.out.println(entry.getKey() + " " + entry.getValue() + entry.getValue().getClass().getName());
-//                        String lOperand = entry.getValue().get(0);
                     }
-//                    System.out.println(operators.get(0) + " " + operators.get(1) + " " + operators.get(2));
                     json.put("Expression", operators.get(0) + " " + operators.get(2) + " " + operators.get(1));
-//                    json.put("Result", Integer.parseInt(operators.get(0)) + " " + operators.get(2) + " " + Integer.parseInt(operators.get(1)));
 
 
                     System.out.println("This is the operator: " + operators.get(2));
@@ -106,20 +100,12 @@ class RequestProcessor implements Runnable {
                                     CRLF + CRLF;
 
                     System.out.println("JSONFILE: " + responseJSON);
-//                        responseJSON =
-//                            "HTTP/1.1 200 OK" +
-//                                    "Content-Type: application/json" +
-//                                    json;
-
                     os.write(responseJSON.getBytes());
-//                    os.write(json.toString().getBytes());
                     System.out.println("Debug: ----->" + json.toString());
                     System.out.println("end of the line!");
 
                 }
             }
-            //Parsing json object
-//            json.put("Expression: ", );
 
             os.write(response.getBytes());
 
