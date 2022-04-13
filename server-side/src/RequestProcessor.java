@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -54,24 +55,13 @@ class RequestProcessor implements Runnable {
                     html +
                     CRLF + CRLF;
 
-        JSONObject json = new JSONObject();
-
-        String response =
-                "HTTP/1.1 200 OK" + CRLF +
-                        "Content-Length: " + json.getBytes().length + CRLF +
-                        "application/json: " + 
-                        CRLF +
-                        html +
-                        CRLF + CRLF;
-
-
-//        Imagine api request is done
-//        System.out.println(in.lines().collect(Collectors.joining("\n")));
-
     //end of your code
 
         try {
+            LinkedList<String> operators = new LinkedList<String>();
             String line;
+            JSONObject json = new JSONObject();
+            String responseJSON;
             while(!(line = in.readLine()).isEmpty()){
                 if (line.toLowerCase().contains("calculate")) {
                     System.out.println(line);
@@ -80,13 +70,57 @@ class RequestProcessor implements Runnable {
                     System.out.println("Debug: " + line);
                     Map<String, List<String>> map = splitQuery(new URL(line));
                     for(Map.Entry<String, List<String>> entry : map.entrySet()){
-                        System.out.println(entry.getKey() + " " + entry.getValue());
+                        operators.addLast(entry.getValue().get(0));
+                        System.out.println(entry.getValue().get(0).getClass());
+//                        operators = entry.getValue();
+//                        System.out.println(entry.getKey() + " " + entry.getValue() + entry.getValue().getClass().getName());
+//                        String lOperand = entry.getValue().get(0);
                     }
+//                    System.out.println(operators.get(0) + " " + operators.get(1) + " " + operators.get(2));
+                    json.put("Expression", operators.get(0) + " " + operators.get(2) + " " + operators.get(1));
+//                    json.put("Result", Integer.parseInt(operators.get(0)) + " " + operators.get(2) + " " + Integer.parseInt(operators.get(1)));
+
+
+                    System.out.println("This is the operator: " + operators.get(2));
+
+                    //Checking for the operator
+                    if(operators.get(2).equals("+")) {
+                        System.out.println("Debug------>: " + (int) (Integer.parseInt(operators.get(0)) + Integer.parseInt(operators.get(1))));
+                        json.put("Result", (int)(Integer.parseInt(operators.get(0)) + Integer.parseInt(operators.get(1))));
+                    }
+                    else if(operators.get(2).equals("-"))
+                        json.put("Result", Integer.parseInt(operators.get(0)) - Integer.parseInt(operators.get(1)));
+                    else if(operators.get(2).equals("*"))
+                        json.put("Result", Integer.parseInt(operators.get(0)) * Integer.parseInt(operators.get(1)));
+                    else if(operators.get(2).equals("/"))
+                        json.put("Result", Integer.parseInt(operators.get(0)) / Integer.parseInt(operators.get(1)));
+                    else if(operators.get(2).equals("%"))
+                        json.put("Result", Integer.parseInt(operators.get(0)) % Integer.parseInt(operators.get(1)));
+
+                    responseJSON =
+                            "HTTP/1.1 200 OK" + CRLF +
+                                    "Content-Type: " + "application/json" + CRLF +
+                                    "Content-Length: " + json.toString().getBytes().length + CRLF +
+                                    CRLF +
+                                    json +
+                                    CRLF + CRLF;
+
+                    System.out.println("JSONFILE: " + responseJSON);
+//                        responseJSON =
+//                            "HTTP/1.1 200 OK" +
+//                                    "Content-Type: application/json" +
+//                                    json;
+
+                    os.write(responseJSON.getBytes());
+//                    os.write(json.toString().getBytes());
+                    System.out.println("Debug: ----->" + json.toString());
+                    System.out.println("end of the line!");
 
                 }
-                JSONObject jsonObject = new JSONObject();
-
             }
+            //Parsing json object
+//            json.put("Expression: ", );
+
             os.write(response.getBytes());
 
             os.flush();

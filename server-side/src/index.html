@@ -123,14 +123,12 @@
         const operator = document.querySelectorAll(".operator");
         let selectedOperator;
 
-        console.log(operator);
-
         if (!lOperand.valueAsNumber || !rOperand.valueAsNumber) return;
 
-        console.log(operator[0]);
         for (let i = 0; i < operator.length; i++)
           if (operator[i].checked) selectedOperator = operator[i].value;
 
+        console.log(`before fetch`);
         getJsonFile(lOperand, rOperand, selectedOperator);
       });
 
@@ -142,9 +140,15 @@
             rOperand.valueAsNumber
           )}&operator=${encodeURIComponent(selectedOperator)}`
         )
-          .then((response) => response.json())
+          .then((response) => {
+            console.log(response);
+            return response.json();
+          })
           .then((data) => {
             console.log(data);
+            const { Expression, Result } = data;
+            document.querySelector(".expression").textContent = Expression;
+            document.querySelector(".result").textContent = Result;
           });
       };
     </script>
