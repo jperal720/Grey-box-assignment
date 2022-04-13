@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -9,6 +11,8 @@ import java.util.stream.Collectors;
 import java.util.*;
 
 import org.json.simple.JSONObject;
+import org.springframework.web.bind.annotation.*;
+
 
 class RequestProcessor implements Runnable {
     private Socket socket = null;
@@ -39,7 +43,7 @@ class RequestProcessor implements Runnable {
             .getResourceAsStream("index.html");
     String html = new BufferedReader(new InputStreamReader(input)).lines()
             .collect(Collectors.joining("\n"));
-        System.out.println(html);
+        System.out.println("html running");
 
         final String CRLF = "\r\n";
 
@@ -50,19 +54,40 @@ class RequestProcessor implements Runnable {
                     html +
                     CRLF + CRLF;
 
-//        os.write(response.getBytes());
+        JSONObject json = new JSONObject();
+
+        String response =
+                "HTTP/1.1 200 OK" + CRLF +
+                        "Content-Length: " + json.getBytes().length + CRLF +
+                        "application/json: " + 
+                        CRLF +
+                        html +
+                        CRLF + CRLF;
+
+
+//        Imagine api request is done
+//        System.out.println(in.lines().collect(Collectors.joining("\n")));
 
     //end of your code
 
         try {
-//            String response = msgToClient + jsonObject.toString();
-            os.write(response.getBytes());
+            String line;
+            while(!(line = in.readLine()).isEmpty()){
+                if (line.toLowerCase().contains("calculate")) {
+                    System.out.println(line);
+//                    line = line.substring(14,line.length() - 5).trim();
+                    line = "http://localhost:8080" + line.substring(4, line.length() - 8).trim();
+                    System.out.println("Debug: " + line);
+                    Map<String, List<String>> map = splitQuery(new URL(line));
+                    for(Map.Entry<String, List<String>> entry : map.entrySet()){
+                        System.out.println(entry.getKey() + " " + entry.getValue());
+                    }
 
-//            Scanner scan = new Scanner(new File("index.html"));
-//            String html = scan.useDelimiter("\n").next();
-//            scan.close();
-//            os.write(html.getBytes("UTF-8"));
-//            os.write("\r\n\r\n".getBytes());
+                }
+                JSONObject jsonObject = new JSONObject();
+
+            }
+            os.write(response.getBytes());
 
             os.flush();
             socket.close();
@@ -71,37 +96,19 @@ class RequestProcessor implements Runnable {
         }
     }
 
-    //Method that returns connection permission to client(handshake)
-    public void handShake(BufferedReader in , OutputStream os){
-        String header = "";//Variable declaration in header
-        String key = "";//Variable declaration of websocket key
-        try {
-            while (!(header = in.readLine()).equals("")) {//Substitute the header obtained from the input stream into the string and loop all lines.
-                System.out.println(header);//Show header contents on console line by line
-                String[] spLine = header.split(":");//One line ":And put it in the array
-                if (spLine[0].equals("Sec-WebSocket-Key")) {//Sec-WebSocket-Key line
-                    key = spLine[1].trim();//Trim blanks and get websocket key
-                }
+    //Reference: https://stackoverflow.com/questions/13592236/parse-a-uri-string-into-name-value-collection
+    public static Map<String, List<String>> splitQuery(URL url) throws UnsupportedEncodingException {
+        final Map<String, List<String>> query_pairs = new LinkedHashMap<String, List<String>>();
+        final String[] pairs = url.getQuery().split("&");
+        for (String pair : pairs) {
+            final int idx = pair.indexOf("=");
+            final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
+            if (!query_pairs.containsKey(key)) {
+                query_pairs.put(key, new LinkedList<String>());
             }
-            key +="258EAFA5-E914-47DA-95CA-C5AB0DC85B11";//Add a mysterious string to the key
-            byte[] keyUtf8=key.getBytes("UTF-8");//Key to "UTF-Convert to a byte array of "8"
-            MessageDigest md = MessageDigest.getInstance("SHA-1");//Returns an object that implements the specified digest algorithm
-            byte[] keySha1=md.digest(keyUtf8);//Key(UTF-8)Do a digest calculation using
-            Encoder encoder = Base64.getEncoder();//Base64 encoder available
-            byte[] keyBase64 = encoder.encode(keySha1);//Key(SHA-1)Is Base64 encoded
-            String keyNext = new String(keyBase64);//Key(Base64)To String
-            byte[] response = ("HTTP/1.1 101 Switching Protocols\r\n"
-                    + "Connection: Upgrade\r\n"
-                    + "Upgrade: websocket\r\n"
-                    + "Sec-WebSocket-Accept: "
-                    + keyNext
-                    + "\r\n\r\n")
-                    .getBytes("UTF-8");//Create HTTP response
-            os.write(response);//Send HTTP response
-        } catch (IOException e) {
-            System.err.println("An error has occurred: " + e);
-        } catch (NoSuchAlgorithmException e) {
-            System.err.println("An error has occurred: " + e);
+            final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
+            query_pairs.get(key).add(value);
         }
+        return query_pairs;
     }
 }

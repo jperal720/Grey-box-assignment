@@ -131,12 +131,19 @@
         for (let i = 0; i < operator.length; i++)
           if (operator[i].checked) selectedOperator = operator[i].value;
 
-        const message = ``; //Contains the operation
-        getJsonFile(message);
+        console.log(getJsonFile);
+        getJsonFile(lOperand, rOperand, selectedOperator);
       });
 
-      const getJsonFile = function (message) {
-        fetch(`http://localhost:8080/`)
+      const getJsonFile = function (lOperand, rOperand, selectedOperator) {
+        console.log(selectedOperator);
+        fetch(
+          `http://localhost:8080/calculate?lOperand=${encodeURIComponent(
+            lOperand.valueAsNumber
+          )}&rOperand=${encodeURIComponent(
+            rOperand.valueAsNumber
+          )}&operator=${encodeURIComponent(selectedOperator)}`
+        )
           .then((response) => response.json())
           .then((data) => {
             console.log(data);

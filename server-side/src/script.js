@@ -19,7 +19,7 @@ document.querySelector(".btn").addEventListener("click", function () {
 });
 
 const getJsonFile = function (message) {
-  fetch(`http://localhost:8080/`)
+  fetch(`http://localhost:8080/calculate`)
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
